@@ -261,67 +261,82 @@
             }
 
             async function changePassword() {
-                var oldPassword = document.getElementById('oldPassword').value;
-                var password = document.getElementById("password").value;
-                var repassword = document.getElementById("repassword").value;
+                var oldPassword = document.getElementById('oldPassword').value.trim();
+                var password = document.getElementById("password").value.trim();
+                var repassword = document.getElementById("repassword").value.trim();
+
+                if (oldPassword == "") {
+                    alert("Old Password input field cannot be empty.");
+                    return;
+                } else if (password == "") {
+                    alert("New Password input field cannot be empty.");
+                    return;
+                } else if (repassword == "") {
+                    alert("Re-enter New Password input field cannot be empty.");
+                    return;
+                }
+
+                if (password !== repassword) {
+                    //Check if password and repassword is the same
+                    document.getElementById("password").style.borderColor = "#E34234";
+                    document.getElementById("repassword").style.borderColor = "#E34234";
+                    alert("Passwords do not match. Please key again.");
+                    return;
+                }
+
+                if (oldPassword == password) {
+                    alert("New password cannot be the same as the old password.");
+                    return;
+                }
+
+                if (password.length != 0 && password.length < 8) {
+                    alert("Passwords too short. At least 8 characters.");
+                    return;
+                }
 
                 if (document.getElementById("changePasswordForm").checkValidity()) {
-                    if (oldPassword != "" && password != "" && repassword != "") {
-                        var memberData = {
-                            id: member.id,
-                            password: oldPassword
-                        };
+                    var memberData = {
+                        id: member.id,
+                        password: oldPassword
+                    };
 
-                        await fetch(new Request('/api/verifyPassword',
-                        {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: 'Bearer ' + authToken
-                            },
-                            body: JSON.stringify(memberData)
-                        })).then(function (response) {
-                            return response.json();
-                        }).then(function (data) {
-                            if(data.success) {
-                                if (password != repassword) {
-                                    //Check if password and repassword is the same
-                                    document.getElementById("password").style.borderColor = "#E34234";
-                                    document.getElementById("repassword").style.borderColor = "#E34234";
-                                    alert("Passwords do not match. Please key again.");
-                                } else if (password == repassword) {
-                                    //Check if password length is at least 8
-                                    if (password.length != 0 && password.length < 8) {
-                                        alert("Passwords too short. At least 8 characters.");
-                                    } else {
-                                        return fetch(new Request('/api/changePassword', {
-                                            method: 'PUT',
-                                            headers: {
-                                                'Content-Type': 'application/json',
-                                                Authorization: 'Bearer ' + authToken
-                                            },
-                                            body: JSON.stringify({ id: member.id, newPassword: password })
-                                        }));
-                                    }
-                                }
-                            }
-                            else {
-                                alert("Old password is incorrect.");
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert("Password successfully changed!");
-                                document.getElementById("changePasswordForm").reset();
-                            } else {
-                                alert("Failed to change password!");
-                            }
-                        })
-                        .catch(function (error) {
-                            console.log(error);
-                        }); 
-                    }
+                    await fetch(new Request('/api/verifyPassword',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: 'Bearer ' + authToken
+                        },
+                        body: JSON.stringify(memberData)
+                    })).then(function (response) {
+                        return response.json();
+                    }).then(function (data) {
+                        if(data.success) {
+                            return fetch(new Request('/api/changePassword', {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: 'Bearer ' + authToken
+                                },
+                                body: JSON.stringify({ id: member.id, newPassword: password })
+                            }));
+                        } else {
+                            alert("Old password is incorrect.");
+                            return;
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Password successfully changed!");
+                            document.getElementById("changePasswordForm").reset();
+                        } else {
+                            alert("Failed to change password!");
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
                 }
             }
 
