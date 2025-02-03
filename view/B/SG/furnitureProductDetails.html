@@ -20,7 +20,11 @@
                 }).then(function (furniture) {
                     //set furniture details
                     document.getElementById("imgFurniture").setAttribute('src', furniture.imageURL);
-                    document.getElementById("description").innerText = furniture.description || "No description available";
+                    document.getElementById("furnitureName").innerText = furniture.name;
+                    document.getElementById("price").innerText = `$${furniture.price.toFixed(2)}`;
+                    document.getElementById("description").innerText = furniture.description;
+                    var dimensions = `Height: ${furniture.height}\nLength: ${furniture.length}\nWidth: ${furniture.width}`;
+                    document.getElementById("furnitureInfo").innerText = dimensions;
                 
                     if(memberEmail != null && memberEmail != '') {
                         document.getElementById("addToCartBtn").innerHTML = '<button class="btn btn-primary" onclick="addToCart(\''
